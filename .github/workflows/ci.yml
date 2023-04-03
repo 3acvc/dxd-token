@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+    branches: [development, main]
+  pull_request:
+    branches: [development, main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install packages
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        run: npx hardhat deploy
+
+      - name: Tests
+        run: npm test
