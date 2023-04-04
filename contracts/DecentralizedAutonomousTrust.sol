@@ -881,7 +881,7 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
   }
 
   function mint(address to, uint256 amount) public onlyControl {
-    _mint(to, amount);
+     super._mint(to, amount);
   }
 
   /**
