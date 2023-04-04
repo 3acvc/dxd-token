@@ -169,4 +169,27 @@ describe('DXD upgrade and Withdrwals', function () {
     // At the end, the beneficiary should have the initial DXD + the amount stuck in the vesting contract
     expect(await datProxyFromAvatar.balanceOf(DLABS_VESTING_BENEFICIARY)).to.equal(beneficiaryFinalDXDBalance);
   });
+
+  it('Only Avatar (control) can burn and mint DXD tokens', async function () {
+
+    const [defaultSigner] = await ethers.getSigners();
+
+    const datProxyFromDefaultSigner = await ethers.getContractAt(
+      'DecentralizedAutonomousTrust',
+      DAT_PROXY,
+      defaultSigner
+    );
+
+    const vestingContractDXDBalance = await datProxyFromDefaultSigner.balanceOf(DLABS_VESTING_CONTRACT);
+
+    // Burn from vesting contracts
+    await expect(datProxyFromDefaultSigner.burnFrom(DLABS_VESTING_CONTRACT, vestingContractDXDBalance)).to.be.revertedWith(
+      'DAT: ONLY_CONTROL'
+    );
+
+    // Mint the same amount to the beneficiary
+    await expect(
+      datProxyFromDefaultSigner.mint(DLABS_VESTING_BENEFICIARY, vestingContractDXDBalance)
+    ).to.be.revertedWith('DAT: ONLY_CONTROL');
+  });
 });
