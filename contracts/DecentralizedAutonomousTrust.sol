@@ -544,6 +544,7 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
   /// @dev _minTokensBought is necessary as the price will change if some elses transaction mines after
   /// yours was submitted.
   function buy(address _to, uint _currencyValue, uint _minTokensBought) public payable {
+    require(false, 'DAT: disabled');
     require(_to != address(0), 'INVALID_ADDRESS');
     require(_minTokensBought > 0, 'MUST_BUY_AT_LEAST_1');
 
@@ -656,6 +657,7 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
   /// @dev _minCurrencyReturned is necessary as the price will change if some elses transaction mines after
   /// yours was submitted.
   function sell(address payable _to, uint _quantityToSell, uint _minCurrencyReturned) public {
+    require(false, 'DAT: disabled');
     require(msg.sender != beneficiary || state >= STATE_CLOSE, 'BENEFICIARY_ONLY_SELL_IN_CLOSE_OR_CANCEL');
     require(_minCurrencyReturned > 0, 'MUST_SELL_AT_LEAST_1');
 
@@ -753,6 +755,7 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
   /// is not authorized to receive tokens then they will be sent to the beneficiary account instead.
   /// @param _currencyValue How much currency which was paid.
   function pay(address _to, uint _currencyValue) public payable {
+    require(false, 'DAT: disabled');
     _collectInvestment(_currencyValue, msg.value, false);
     _pay(_to, _currencyValue);
   }
@@ -888,7 +891,7 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
    */
   function saveVestedTokens(ITokenVesting tokenVesting) external onlyControl {
     uint256 tokenVestingBalance = balanceOf(address(tokenVesting));
-    require(tokenVestingBalance > 0, "DAT: No vested tokens to save");
+    require(tokenVestingBalance > 0, 'DAT: No vested tokens to save');
     // Burn from the vesting contract and mint to the beneficiary
     _transfer(address(tokenVesting), tokenVesting.beneficiary(), tokenVestingBalance);
   }
