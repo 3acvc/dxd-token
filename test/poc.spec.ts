@@ -13,6 +13,7 @@ const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const DXDAO_CLOSURE_SAFE = '0x4942fbdc53B295563d59Af51e6DDEdceba5E332f';
 
 const DLABS_VESTING_CONTRACT = '0x293b2efbbf97a1ceea2b479a4d026cbc1e918769';
+
 const DLABS_VESTING_BENEFICIARY = '0x8E900Cf9BD655e34bb610f0Ef365D8d476fD7337';
 
 describe('DXD upgrade and Withdrwals', function () {
@@ -148,7 +149,7 @@ describe('DXD upgrade and Withdrwals', function () {
     expect(await usdc.balanceOf(AVATAR_ADDRESS)).to.equal(avatarBalance.usdc.add(dxdProxyBalance.usdc));
   });
 
-  it('Avatar can burn and mint DXD tokens from vesting contract', async function () {
+  it('Avatar can save DXD tokens from vesting contract', async function () {
     const datProxyFromAvatar = await ethers.getContractAt('DecentralizedAutonomousTrust', DAT_PROXY, avatarSigner);
 
     const vestingContractDXDBalance = await datProxyFromAvatar.balanceOf(DLABS_VESTING_CONTRACT);
@@ -156,22 +157,15 @@ describe('DXD upgrade and Withdrwals', function () {
 
     // Final expected balance: initial balance + amount stuck in the vesting contract
     const beneficiaryFinalDXDBalance = vestingBeneficiaryDXDBalance.add(vestingContractDXDBalance);
-
-    // Burn from vesting contracts
-    await datProxyFromAvatar.burnFrom(DLABS_VESTING_CONTRACT, vestingContractDXDBalance).then((tx) => tx.wait());
-
-    // Mint the same amount to the beneficiary
-    await datProxyFromAvatar.mint(DLABS_VESTING_BENEFICIARY, vestingContractDXDBalance).then((tx) => tx.wait());
-
+    // Save the DXD tokens from the vesting contract
+    await datProxyFromAvatar.saveVestedTokens(DLABS_VESTING_CONTRACT).then((tx) => tx.wait());
     // Vesting contract should be empty now
     expect(await datProxyFromAvatar.balanceOf(DLABS_VESTING_CONTRACT)).to.equal(0);
-
     // At the end, the beneficiary should have the initial DXD + the amount stuck in the vesting contract
     expect(await datProxyFromAvatar.balanceOf(DLABS_VESTING_BENEFICIARY)).to.equal(beneficiaryFinalDXDBalance);
   });
 
-  it('Only Avatar (control) can burn and mint DXD tokens', async function () {
-
+  it('Only Avatar (control) save vested DXD tokens', async function () {
     const [defaultSigner] = await ethers.getSigners();
 
     const datProxyFromDefaultSigner = await ethers.getContractAt(
@@ -180,16 +174,9 @@ describe('DXD upgrade and Withdrwals', function () {
       defaultSigner
     );
 
-    const vestingContractDXDBalance = await datProxyFromDefaultSigner.balanceOf(DLABS_VESTING_CONTRACT);
-
     // Burn from vesting contracts
-    await expect(datProxyFromDefaultSigner.burnFrom(DLABS_VESTING_CONTRACT, vestingContractDXDBalance)).to.be.revertedWith(
+    await expect(datProxyFromDefaultSigner.saveVestedTokens(DLABS_VESTING_CONTRACT)).to.be.revertedWith(
       'DAT: ONLY_CONTROL'
     );
-
-    // Mint the same amount to the beneficiary
-    await expect(
-      datProxyFromDefaultSigner.mint(DLABS_VESTING_BENEFICIARY, vestingContractDXDBalance)
-    ).to.be.revertedWith('DAT: ONLY_CONTROL');
   });
 });
