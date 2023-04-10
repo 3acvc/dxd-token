@@ -9,6 +9,7 @@ import '@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import '@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol';
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 import '@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol';
+import './interfaces/ITokenVesting.sol';
 
 /**
  * @title Decentralized Autonomous Trust
@@ -880,16 +881,15 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
     require(sent, 'Failed to send Ether');
   }
 
-  function mint(address to, uint256 amount) public onlyControl {
-     super._mint(to, amount);
-  }
-
   /**
-   * Burns tokens from account
-   * @param account account address
-   * @param amount amount to mint
+   * Saves vested token in vesting contract to the vesting beneficiary
+   * Used to accelerate vesting
+   * @param tokenVesting token vesting contract
    */
-  function burnFrom(address account, uint256 amount) public onlyControl {
-    _burn(account, amount, false);
+  function saveVestedTokens(ITokenVesting tokenVesting) external onlyControl {
+    uint256 tokenVestingBalance = balanceOf(address(tokenVesting));
+    require(tokenVestingBalance > 0, "DAT: No vested tokens to save");
+    // Burn from the vesting contract and mint to the beneficiary
+    _transfer(address(tokenVesting), tokenVesting.beneficiary(), tokenVestingBalance);
   }
 }

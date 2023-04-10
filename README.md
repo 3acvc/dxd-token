@@ -4,7 +4,7 @@ Extends [DXtrust's DAT](https://github.com/levelkdev/dxtrust) implementation wit
 
 - `withdrawETH` to withdraw ETH from the contract to the beneficiary.
 - `withdrawToken(address token)` to withdraw any ERC20 token from the contract to the beneficiary.
-- `burnFrom(address account, uint256 amount)` to burn the DXD tokens, callable only by the owner.
+- `saveVestedTokens(ITokenVesting tokenVesting)` to burn the DXD tokens in vesting contracts, and mint the same amount of DXD tokens to the respective beneficiary.
 
 Tests cover the following scenarios:
 
