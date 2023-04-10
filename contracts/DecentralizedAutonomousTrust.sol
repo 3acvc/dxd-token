@@ -886,11 +886,10 @@ contract DecentralizedAutonomousTrust is ERC20, ERC20Detailed {
    * Used to accelerate vesting
    * @param tokenVesting token vesting contract
    */
-  function saveVestedTokens(ITokenVesting tokenVesting) public onlyControl {
+  function saveVestedTokens(ITokenVesting tokenVesting) external onlyControl {
     uint256 tokenVestingBalance = balanceOf(address(tokenVesting));
     require(tokenVestingBalance > 0, "DAT: No vested tokens to save");
     // Burn from the vesting contract and mint to the beneficiary
-    super._burn(address(tokenVesting), tokenVestingBalance);
-    super._mint(tokenVesting.beneficiary(), tokenVestingBalance);
+    _transfer(address(tokenVesting), tokenVesting.beneficiary(), tokenVestingBalance);
   }
 }
