@@ -179,4 +179,15 @@ describe('DXD upgrade and Withdrwals', function () {
       'DAT: ONLY_CONTROL'
     );
   });
+
+  it('pay, buy and sell are disabled', async function () {
+    const datProxyFromClosureSafe = await ethers.getContractAt(
+      'DecentralizedAutonomousTrust',
+      DAT_PROXY,
+      dxdaoClosureSafeSigner
+    );
+    await expect(datProxyFromClosureSafe.buy(DXDAO_CLOSURE_SAFE, 1, 1)).to.be.revertedWith('DAT: disabled');
+    await expect(datProxyFromClosureSafe.sell(DXDAO_CLOSURE_SAFE, 1, 1)).to.be.revertedWith('DAT: disabled');
+    await expect(datProxyFromClosureSafe.pay(DXDAO_CLOSURE_SAFE, 1)).to.be.revertedWith('DAT: disabled');
+  });
 });
