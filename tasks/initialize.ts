@@ -1,9 +1,11 @@
 import { LedgerSigner } from '@anders-t/ethers-ledger';
-import { task, types } from 'hardhat/config';
-import { deployDATContract, initializeDATContract } from './utils';
 
-task('deploy', 'Deploys contracts')
+import { task, types } from 'hardhat/config';
+import { initializeDATContract } from './utils';
+
+task('initialize', 'Initialize DAT contract')
   .addOptionalParam('ledger', 'Use a Ledger hardware wallet', false, types.boolean)
+  .addParam('dat', 'DAT address', undefined, types.string, false)
   .setAction(async function (taskArgs, { ethers }) {
     let [deployer] = await ethers.getSigners();
 
@@ -17,12 +19,6 @@ task('deploy', 'Deploys contracts')
       throw new Error('No deployer');
     }
 
-    console.log('Deploying DAT from', await deployer.getAddress());
-
-    const dat = await deployDATContract(ethers, deployer);
-    console.log('DAT deployed to', dat.address);
-
-    console.log('Initializing DAT');
-    await initializeDATContract(ethers, deployer, dat.address);
-    console.log('DAT initialized');
+    const tx = await initializeDATContract(ethers, deployer, taskArgs.dat);
+    console.log(`DAT initialized tx hash: ${tx.transactionHash}`);
   });

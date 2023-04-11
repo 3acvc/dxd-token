@@ -59,6 +59,9 @@ const config: HardhatUserConfig = {
       url: rpcURL,
       chainId: 1,
     },
+    sepolia: {
+      url: 'https://rpc.sepolia.org',
+    },
   },
   solidity: {
     version: '0.5.17',
@@ -72,6 +75,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       mainnet: ETHER_SCAN_API_KEY!,
+      sepolia: ETHER_SCAN_API_KEY!,
     },
   },
   typechain: {
